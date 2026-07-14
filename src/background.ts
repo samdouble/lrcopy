@@ -1,0 +1,1 @@
+// Intentionally empty — extension stub.
