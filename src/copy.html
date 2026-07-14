@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>lrcopy</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-width: 240px;
+        padding: 12px 14px;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .status {
+        font-weight: 600;
+      }
+
+      .detail {
+        margin-top: 6px;
+        opacity: 0.75;
+      }
+
+      .error {
+        color: #c62828;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status" class="status">Working…</div>
+    <div id="detail" class="detail"></div>
+    <script type="module" src="./copy.ts"></script>
+  </body>
+</html>

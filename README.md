@@ -1,5 +1,9 @@
 # lrcopy
 
+Right-click any image → **Copy smaller image** to put a resized copy on the clipboard (max edge 1280px).
+
+A small popup writes to the clipboard (Chromium requires a focused page for that), then closes. The toolbar badge shows the copied size (e.g. `240K`).
+
 ## Develop
 
 ```bash
