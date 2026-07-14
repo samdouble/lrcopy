@@ -1,0 +1,14 @@
+{
+  "last-release-sha": "6179f05d06ce99ae897014908cd42dfff83452bb",
+  "include-component-in-tag": true,
+  "include-v-in-tag": true,
+  "separate-pull-requests": true,
+  "packages": {
+    "extension": {
+      "release-type": "node",
+      "path": ".",
+      "skip-snapshot": true,
+      "component": "extension"
+    }
+  }
+}

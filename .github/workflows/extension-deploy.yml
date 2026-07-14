@@ -1,0 +1,22 @@
+name: Extension Deploy
+
+on:
+  push:
+    tags:
+      - 'extension-v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Deploy
+        run: |
+          export VERSION=${{ github.ref_name }}
+          export TAG="${VERSION:1}"
+          echo $TAG

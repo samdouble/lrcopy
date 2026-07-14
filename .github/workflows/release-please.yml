@@ -1,0 +1,46 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      extension--release-created: ${{ steps.release.outputs.extension--release-created}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Release Please
+        uses: googleapis/release-please-action@v5
+        id: release
+        with:
+          token: ${{ secrets.PAT }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      - name: Print release outputs for debugging
+        continue-on-error: true
+        run: |
+          echo "Release outputs:"
+          echo "${{ toJson(steps.release.outputs) }}"
+
+  release-please-extension:
+    runs-on: ubuntu-latest
+    if: ${{needs.release-please.outputs.extension--release_created}}
+    needs: release-please
+    timeout-minutes: 1
+    steps:
+      - name: Release Please Extension
+        uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.PAT }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: master

@@ -1,0 +1,48 @@
+name: Extension Checks
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  checks:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        node-version: ['24.18.0']
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: |
+          npm install
+      - name: Lint
+        run: |
+          npm run lint
+      - name: Audit
+        run: |
+          npm audit --audit-level moderate --production
+      - name: Tests
+        env:
+          CI: true
+        run: |
+          npm run test
+      - name: Build
+        run: |
+          npm run build
