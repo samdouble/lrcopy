@@ -43,6 +43,10 @@ jobs:
           CI: true
         run: |
           npm run test
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          file: coverage/lcov.info
       - name: Build
         run: |
           npm run build

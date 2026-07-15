@@ -3,7 +3,7 @@
 A small browser extension to copy images with a smaller size.
 
 [![CI](https://github.com/samdouble/lrcopy/actions/workflows/checks.yml/badge.svg)](https://github.com/samdouble/lrcopy/actions/workflows/checks.yml?branch=master)
-[![Coverage Status](https://coveralls.io/repos/samdouble/lrcopy/badge.svg?branch=master&service=github)](https://coveralls.io/github/samdouble/lrcopy?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/samdouble/lrcopy/badge.svg?branch=master)](https://coveralls.io/github/samdouble/lrcopy?branch=master)
 
 [![Node.js](https://img.shields.io/badge/Node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
