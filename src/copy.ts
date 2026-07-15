@@ -1,12 +1,40 @@
-import { base64ToBlob, formatBytes, type CopyJob } from './shared'
+import {
+  JPEG_QUALITY,
+  base64ToBlob,
+  formatBytes,
+  getJpegQuality,
+  setJpegQuality,
+  type CopyJob,
+} from './shared'
 
 const statusEl = document.getElementById('status')!
 const detailEl = document.getElementById('detail')!
+const settingsEl = document.getElementById('settings')!
+const qualityEl = document.getElementById('quality') as HTMLInputElement
+const qualityValueEl = document.getElementById('quality-value')!
 
 function setUi(status: string, detail = '', isError = false) {
   statusEl.textContent = status
   detailEl.textContent = detail
   statusEl.classList.toggle('error', isError)
+}
+
+function qualityToPercent(quality: number): number {
+  return Math.round(quality * 100)
+}
+
+function percentToQuality(percent: number): number {
+  return percent / 100
+}
+
+function showQuality(quality: number) {
+  const percent = qualityToPercent(quality)
+  qualityEl.value = String(percent)
+  qualityValueEl.textContent = `${percent}%`
+}
+
+function setSettingsVisible(visible: boolean) {
+  settingsEl.hidden = !visible
 }
 
 function sleep(ms: number) {
@@ -23,6 +51,7 @@ async function waitForJob(): Promise<CopyJob> {
       return job
     }
     setUi('Compressing…', 'Making a lighter copy')
+    setSettingsVisible(false)
     await sleep(50)
   }
   return { status: 'error', error: 'Timed out while compressing the image.' }
@@ -41,7 +70,6 @@ async function writeToClipboard(job: CopyJob) {
     ])
     return
   } catch {
-    // Some paste targets only accept PNG on the clipboard.
     const bitmap = await createImageBitmap(blob)
     const canvas = document.createElement('canvas')
     canvas.width = bitmap.width
@@ -64,13 +92,30 @@ async function writeToClipboard(job: CopyJob) {
   }
 }
 
+async function initQualitySlider() {
+  showQuality(await getJpegQuality().catch(() => JPEG_QUALITY))
+
+  qualityEl.addEventListener('input', () => {
+    const percent = Number(qualityEl.value)
+    qualityValueEl.textContent = `${percent}%`
+  })
+
+  qualityEl.addEventListener('change', () => {
+    void setJpegQuality(percentToQuality(Number(qualityEl.value)))
+  })
+}
+
 async function main() {
+  await initQualitySlider()
   const job = await waitForJob()
 
   if (job.status === 'idle') {
     setUi('lrcopy', 'Right-click an image → Copy smaller image')
+    setSettingsVisible(true)
     return
   }
+
+  setSettingsVisible(false)
 
   if (job.status === 'error') {
     setUi('Copy failed', job.error ?? 'Unknown error', true)

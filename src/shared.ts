@@ -3,6 +3,26 @@ export const MENU_ID = 'copy-smaller-image'
 export const MAX_EDGE_PX = 1280
 /** JPEG keeps paste weight down; we re-wrap as PNG only if a target rejects JPEG. */
 export const JPEG_QUALITY = 0.72
+export const JPEG_QUALITY_MIN = 0.1
+export const JPEG_QUALITY_MAX = 1
+export const JPEG_QUALITY_STORAGE_KEY = 'jpegQuality'
+
+export function clampJpegQuality(quality: number): number {
+  if (!Number.isFinite(quality)) return JPEG_QUALITY
+  return Math.min(JPEG_QUALITY_MAX, Math.max(JPEG_QUALITY_MIN, quality))
+}
+
+export async function getJpegQuality(): Promise<number> {
+  const result = await chrome.storage.sync.get(JPEG_QUALITY_STORAGE_KEY)
+  const value = result[JPEG_QUALITY_STORAGE_KEY]
+  return typeof value === 'number' ? clampJpegQuality(value) : JPEG_QUALITY
+}
+
+export async function setJpegQuality(quality: number): Promise<void> {
+  await chrome.storage.sync.set({
+    [JPEG_QUALITY_STORAGE_KEY]: clampJpegQuality(quality),
+  })
+}
 
 export type JobStatus = 'compressing' | 'ready' | 'error' | 'idle'
 

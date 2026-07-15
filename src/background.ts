@@ -1,9 +1,9 @@
 import {
-  JPEG_QUALITY,
   MAX_EDGE_PX,
   MENU_ID,
   compressBlob,
   formatBytes,
+  getJpegQuality,
   type CompressedPayload,
   type CopyJob,
 } from './shared'
@@ -32,18 +32,15 @@ type InPageCompressResult =
   | { ok: true; payload: CompressedPayload }
   | { ok: false; error: string }
 
-/**
- * Prefer compressing from the already-decoded <img> in the page so we don't
- * need a second network request (often blocked without cookies/Referer).
- */
 async function compressInPage(
   tabId: number,
   srcUrl: string,
+  quality: number,
 ): Promise<InPageCompressResult> {
   try {
     const results = await chrome.scripting.executeScript({
       target: { tabId },
-      args: [srcUrl, MAX_EDGE_PX, JPEG_QUALITY],
+      args: [srcUrl, MAX_EDGE_PX, quality],
       func: async (src: string, maxEdge: number, quality: number) => {
         const scaleDimensions = (width: number, height: number) => {
           const longest = Math.max(width, height)
@@ -128,12 +125,12 @@ async function compressInPage(
             )
             return { ok: true as const, payload }
           } catch (error) {
-            // Tainted canvas — try fetching from the page next.
+            // Try fetching from the page next
             console.warn('Canvas export failed', error)
           }
         }
 
-        // 2) Re-fetch with the page's cookies / referrer.
+        // 2) Re-fetch with the page's cookies / referrer
         try {
           const response = await fetch(src, {
             credentials: 'include',
@@ -194,8 +191,10 @@ async function compressImage(
     throw new Error('No image URL on the clicked element.')
   }
 
+  const quality = await getJpegQuality()
+
   if (tab?.id != null) {
-    const inPage = await compressInPage(tab.id, srcUrl)
+    const inPage = await compressInPage(tab.id, srcUrl, quality)
     if (inPage.ok) {
       return inPage.payload
     }
@@ -205,7 +204,7 @@ async function compressImage(
   if (srcUrl.startsWith('blob:') || srcUrl.startsWith('data:')) {
     if (srcUrl.startsWith('data:')) {
       const response = await fetch(srcUrl)
-      return compressBlob(await response.blob())
+      return compressBlob(await response.blob(), MAX_EDGE_PX, quality)
     }
     throw new Error(
       'Could not read this image from the page. Try a normal http(s) image.',
@@ -214,7 +213,7 @@ async function compressImage(
 
   try {
     const inputBlob = await fetchImageInWorker(srcUrl)
-    return await compressBlob(inputBlob)
+    return await compressBlob(inputBlob, MAX_EDGE_PX, quality)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     throw new Error(`Could not download image (${srcUrl.slice(0, 120)}). ${message}`)
@@ -234,7 +233,7 @@ async function openCopyUi() {
     type: 'popup',
     focused: true,
     width: 300,
-    height: 120,
+    height: 180,
   })
 }
 
@@ -272,7 +271,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
   currentJob = { status: 'compressing' }
 
-  // openPopup must be invoked directly from the user-gesture turn.
   void openCopyUi()
   void runCompression(info, tab)
 })
