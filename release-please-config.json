@@ -4,11 +4,12 @@
   "include-v-in-tag": true,
   "separate-pull-requests": true,
   "packages": {
-    "extension": {
+    ".": {
       "release-type": "node",
       "path": ".",
       "skip-snapshot": true,
-      "component": "extension"
+      "component": "extension",
+      "release-as": "1.0.0"
     }
   }
 }
