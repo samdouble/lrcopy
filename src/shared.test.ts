@@ -2,14 +2,19 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   JPEG_QUALITY,
   JPEG_QUALITY_STORAGE_KEY,
+  MAX_EDGE_PX,
+  MAX_EDGE_STORAGE_KEY,
   base64ToBlob,
   blobToBase64,
   clampJpegQuality,
+  clampMaxEdge,
   compressBlob,
   formatBytes,
   getJpegQuality,
+  getMaxEdge,
   scaleDimensions,
   setJpegQuality,
+  setMaxEdge,
 } from './shared';
 
 describe('clampJpegQuality', () => {
@@ -22,6 +27,19 @@ describe('clampJpegQuality', () => {
     expect(clampJpegQuality(0)).toBe(0.1);
     expect(clampJpegQuality(1.5)).toBe(1);
     expect(clampJpegQuality(0.5)).toBe(0.5);
+  });
+});
+
+describe('clampMaxEdge', () => {
+  it('returns the default for non-finite values', () => {
+    expect(clampMaxEdge(Number.NaN)).toBe(MAX_EDGE_PX);
+    expect(clampMaxEdge(Number.POSITIVE_INFINITY)).toBe(MAX_EDGE_PX);
+  });
+
+  it('clamps and rounds values to the supported range', () => {
+    expect(clampMaxEdge(100)).toBe(640);
+    expect(clampMaxEdge(5000)).toBe(4096);
+    expect(clampMaxEdge(1280.4)).toBe(1280);
   });
 });
 
@@ -173,5 +191,47 @@ describe('jpeg quality storage', () => {
 
     await setJpegQuality(2);
     expect(set).toHaveBeenCalledWith({ [JPEG_QUALITY_STORAGE_KEY]: 1 });
+  });
+});
+
+describe('max edge storage', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('reads a stored max edge value', async () => {
+    vi.stubGlobal('chrome', {
+      storage: {
+        sync: {
+          get: vi.fn().mockResolvedValue({ [MAX_EDGE_STORAGE_KEY]: 1920 }),
+        },
+      },
+    });
+
+    await expect(getMaxEdge()).resolves.toBe(1920);
+  });
+
+  it('falls back to the default when nothing is stored', async () => {
+    vi.stubGlobal('chrome', {
+      storage: {
+        sync: {
+          get: vi.fn().mockResolvedValue({}),
+        },
+      },
+    });
+
+    await expect(getMaxEdge()).resolves.toBe(MAX_EDGE_PX);
+  });
+
+  it('stores a clamped max edge value', async () => {
+    const set = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('chrome', {
+      storage: {
+        sync: { set },
+      },
+    });
+
+    await setMaxEdge(9000);
+    expect(set).toHaveBeenCalledWith({ [MAX_EDGE_STORAGE_KEY]: 4096 });
   });
 });

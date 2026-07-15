@@ -49,6 +49,10 @@
         opacity: 0.85;
       }
 
+      .settings-field + .settings-field {
+        margin-top: 12px;
+      }
+
       .settings input[type='range'] {
         width: 100%;
         margin: 0;
@@ -59,18 +63,34 @@
     <div id="status" class="status">Working…</div>
     <div id="detail" class="detail"></div>
     <div id="settings" class="settings" hidden>
-      <label class="settings-label" for="quality">
-        <span>JPEG quality</span>
-        <span id="quality-value">72%</span>
-      </label>
-      <input
-        id="quality"
-        type="range"
-        min="10"
-        max="100"
-        step="1"
-        value="72"
-      />
+      <div class="settings-field">
+        <label class="settings-label" for="quality">
+          <span>JPEG quality</span>
+          <span id="quality-value">72%</span>
+        </label>
+        <input
+          id="quality"
+          type="range"
+          min="10"
+          max="100"
+          step="1"
+          value="72"
+        />
+      </div>
+      <div class="settings-field">
+        <label class="settings-label" for="max-edge">
+          <span>Max size</span>
+          <span id="max-edge-value">1280px</span>
+        </label>
+        <input
+          id="max-edge"
+          type="range"
+          min="640"
+          max="4096"
+          step="80"
+          value="1280"
+        />
+      </div>
     </div>
     <script type="module" src="./copy.ts"></script>
   </body>

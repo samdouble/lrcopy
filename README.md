@@ -1,8 +1,8 @@
 # lrcopy
 
-A small browser extension to copy images with a smaller size.
+A lightweight browser extension to copy images with a smaller size.
 
-[![CI](https://github.com/samdouble/lrcopy/actions/workflows/checks.yml/badge.svg)](https://github.com/samdouble/lrcopy/actions/workflows/checks.yml?branch=master)
+[![CI](https://github.com/samdouble/lrcopy/actions/workflows/extension-checks.yml/badge.svg)](https://github.com/samdouble/lrcopy/actions/workflows/extension-checks.yml?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/samdouble/lrcopy/badge.svg?branch=master)](https://coveralls.io/github/samdouble/lrcopy?branch=master)
 
 [![Node.js](https://img.shields.io/badge/Node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -18,10 +18,12 @@ npm install
 npm run dev
 ```
 
-Then open `chrome://extensions`, enable **Developer mode**, and load the unpacked `dist/` folder.
+Then open `chrome://extensions`, enable **Developer mode**, and load the unpacked `dist/chrome` folder.
 
 ## Build
 
 ```bash
-npm run build
+npm run build          # Chrome → dist/chrome
+npm run build:firefox  # Firefox → dist/firefox
+npm run build:all      # both
 ```

@@ -1,6 +1,10 @@
 export const MENU_ID = 'copy-smaller-image';
 
 export const MAX_EDGE_PX = 1280;
+export const MAX_EDGE_MIN_PX = 640;
+export const MAX_EDGE_MAX_PX = 4096;
+export const MAX_EDGE_STORAGE_KEY = 'maxEdgePx';
+
 /** JPEG keeps paste weight down; we re-wrap as PNG only if a target rejects JPEG. */
 export const JPEG_QUALITY = 0.72;
 export const JPEG_QUALITY_MIN = 0.1;
@@ -21,6 +25,23 @@ export async function getJpegQuality(): Promise<number> {
 export async function setJpegQuality(quality: number): Promise<void> {
   await chrome.storage.sync.set({
     [JPEG_QUALITY_STORAGE_KEY]: clampJpegQuality(quality),
+  });
+}
+
+export function clampMaxEdge(maxEdge: number): number {
+  if (!Number.isFinite(maxEdge)) return MAX_EDGE_PX;
+  return Math.min(MAX_EDGE_MAX_PX, Math.max(MAX_EDGE_MIN_PX, Math.round(maxEdge)));
+}
+
+export async function getMaxEdge(): Promise<number> {
+  const result = await chrome.storage.sync.get(MAX_EDGE_STORAGE_KEY);
+  const value = result[MAX_EDGE_STORAGE_KEY];
+  return typeof value === 'number' ? clampMaxEdge(value) : MAX_EDGE_PX;
+}
+
+export async function setMaxEdge(maxEdge: number): Promise<void> {
+  await chrome.storage.sync.set({
+    [MAX_EDGE_STORAGE_KEY]: clampMaxEdge(maxEdge),
   });
 }
 

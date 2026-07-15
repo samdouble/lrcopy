@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:firefox": "tsc --noEmit && vite build --mode firefox",
+    "build:all": "tsc --noEmit && vite build && vite build --mode firefox",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run --coverage"

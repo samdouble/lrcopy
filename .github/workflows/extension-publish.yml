@@ -1,22 +1,57 @@
-name: Extension Deploy
+name: Extension Publish
 
 on:
   push:
     tags:
       - 'extension-v*'
 
+permissions:
+  contents: read
+
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: .
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Deploy
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.18.0'
+      - name: Install
+        run: npm ci
+      - name: Build Chrome and Firefox
+        run: npm run build:all
+      - name: Package Chrome extension
         run: |
-          export VERSION=${{ github.ref_name }}
-          export TAG="${VERSION:1}"
-          echo $TAG
+          (cd dist/chrome && zip -r ../../lrcopy-chrome.zip .)
+      - name: Package Firefox extension
+        run: |
+          (cd dist/firefox && zip -r ../../lrcopy-firefox.zip .)
+      - name: Package sources for Firefox review
+        run: |
+          git archive --format=zip --output=lrcopy-sources.zip HEAD
+      - name: Publish to Chrome Web Store
+        uses: wdzeng/chrome-extension@v2
+        with:
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          zip-path: lrcopy-chrome.zip
+          publisher-id: ${{ secrets.CHROME_PUBLISHER_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      - name: Publish to Firefox Add-ons
+        uses: wdzeng/firefox-addon@v1
+        with:
+          addon-guid: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          xpi-path: lrcopy-firefox.zip
+          source-file-path: lrcopy-sources.zip
+          approval-notes: |
+            Build steps:
+            1. npm ci
+            2. npm run build:firefox
+            Output directory: dist/firefox
+            The gecko id in the manifest is lrcopy@samdouble and must match FIREFOX_EXTENSION_ID.
+          jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}

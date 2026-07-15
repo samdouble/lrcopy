@@ -1,9 +1,9 @@
 import {
-  MAX_EDGE_PX,
   MENU_ID,
   compressBlob,
   formatBytes,
   getJpegQuality,
+  getMaxEdge,
   type CompressedPayload,
   type CopyJob,
 } from './shared';
@@ -35,12 +35,13 @@ type InPageCompressResult =
 async function compressInPage(
   tabId: number,
   srcUrl: string,
+  maxEdge: number,
   quality: number,
 ): Promise<InPageCompressResult> {
   try {
     const results = await chrome.scripting.executeScript({
       target: { tabId },
-      args: [srcUrl, MAX_EDGE_PX, quality],
+      args: [srcUrl, maxEdge, quality],
       func: async (src: string, maxEdge: number, quality: number) => {
         const scaleDimensions = (width: number, height: number) => {
           const longest = Math.max(width, height);
@@ -191,10 +192,10 @@ async function compressImage(
     throw new Error('No image URL on the clicked element.');
   }
 
-  const quality = await getJpegQuality();
+  const [maxEdge, quality] = await Promise.all([getMaxEdge(), getJpegQuality()]);
 
   if (tab?.id != null) {
-    const inPage = await compressInPage(tab.id, srcUrl, quality);
+    const inPage = await compressInPage(tab.id, srcUrl, maxEdge, quality);
     if (inPage.ok) {
       return inPage.payload;
     }
@@ -204,7 +205,7 @@ async function compressImage(
   if (srcUrl.startsWith('blob:') || srcUrl.startsWith('data:')) {
     if (srcUrl.startsWith('data:')) {
       const response = await fetch(srcUrl);
-      return compressBlob(await response.blob(), MAX_EDGE_PX, quality);
+      return compressBlob(await response.blob(), maxEdge, quality);
     }
     throw new Error(
       'Could not read this image from the page. Try a normal http(s) image.',
@@ -213,7 +214,7 @@ async function compressImage(
 
   try {
     const inputBlob = await fetchImageInWorker(srcUrl);
-    return await compressBlob(inputBlob, MAX_EDGE_PX, quality);
+    return await compressBlob(inputBlob, maxEdge, quality);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Could not download image (${srcUrl.slice(0, 120)}). ${message}`, {
@@ -235,7 +236,7 @@ async function openCopyUi() {
     type: 'popup',
     focused: true,
     width: 300,
-    height: 180,
+    height: 240,
   });
 }
 

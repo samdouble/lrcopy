@@ -1,9 +1,14 @@
 import {
   JPEG_QUALITY,
+  MAX_EDGE_MAX_PX,
+  MAX_EDGE_MIN_PX,
+  MAX_EDGE_PX,
   base64ToBlob,
   formatBytes,
   getJpegQuality,
+  getMaxEdge,
   setJpegQuality,
+  setMaxEdge,
   type CopyJob,
 } from './shared';
 
@@ -12,6 +17,8 @@ const detailEl = document.getElementById('detail')!;
 const settingsEl = document.getElementById('settings')!;
 const qualityEl = document.getElementById('quality') as HTMLInputElement;
 const qualityValueEl = document.getElementById('quality-value')!;
+const maxEdgeEl = document.getElementById('max-edge') as HTMLInputElement;
+const maxEdgeValueEl = document.getElementById('max-edge-value')!;
 
 function setUi(status: string, detail = '', isError = false) {
   statusEl.textContent = status;
@@ -31,6 +38,11 @@ function showQuality(quality: number) {
   const percent = qualityToPercent(quality);
   qualityEl.value = String(percent);
   qualityValueEl.textContent = `${percent}%`;
+}
+
+function showMaxEdge(maxEdge: number) {
+  maxEdgeEl.value = String(maxEdge);
+  maxEdgeValueEl.textContent = `${maxEdge}px`;
 }
 
 function setSettingsVisible(visible: boolean) {
@@ -92,8 +104,16 @@ async function writeToClipboard(job: CopyJob) {
   }
 }
 
-async function initQualitySlider() {
-  showQuality(await getJpegQuality().catch(() => JPEG_QUALITY));
+async function initSettings() {
+  maxEdgeEl.min = String(MAX_EDGE_MIN_PX);
+  maxEdgeEl.max = String(MAX_EDGE_MAX_PX);
+
+  const [quality, maxEdge] = await Promise.all([
+    getJpegQuality().catch(() => JPEG_QUALITY),
+    getMaxEdge().catch(() => MAX_EDGE_PX),
+  ]);
+  showQuality(quality);
+  showMaxEdge(maxEdge);
 
   qualityEl.addEventListener('input', () => {
     const percent = Number(qualityEl.value);
@@ -103,10 +123,18 @@ async function initQualitySlider() {
   qualityEl.addEventListener('change', () => {
     void setJpegQuality(percentToQuality(Number(qualityEl.value)));
   });
+
+  maxEdgeEl.addEventListener('input', () => {
+    maxEdgeValueEl.textContent = `${Number(maxEdgeEl.value)}px`;
+  });
+
+  maxEdgeEl.addEventListener('change', () => {
+    void setMaxEdge(Number(maxEdgeEl.value));
+  });
 }
 
 async function main() {
-  await initQualitySlider();
+  await initSettings();
   const job = await waitForJob();
 
   if (job.status === 'idle') {
