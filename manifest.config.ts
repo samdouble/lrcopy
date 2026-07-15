@@ -11,6 +11,12 @@ export default defineManifest(({ mode }) => {
     name: 'lrcopy',
     version: packageJson.version,
     description: 'Right-click an image to copy a smaller, lighter version.',
+    icons: {
+      '16': 'icons/icon-16.png',
+      '32': 'icons/icon-32.png',
+      '48': 'icons/icon-48.png',
+      '128': 'icons/icon-128.png',
+    },
     permissions: ['contextMenus', 'clipboardWrite', 'scripting', 'storage'],
     host_permissions: ['<all_urls>'],
     background: isFirefox
@@ -25,6 +31,12 @@ export default defineManifest(({ mode }) => {
     action: {
       default_title: 'lrcopy',
       default_popup: 'src/copy.html',
+      default_icon: {
+        '16': 'icons/icon-16.png',
+        '32': 'icons/icon-32.png',
+        '48': 'icons/icon-48.png',
+        '128': 'icons/icon-128.png',
+      },
     },
     ...(isFirefox
       ? {
