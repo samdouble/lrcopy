@@ -17,6 +17,19 @@
         line-height: 1.35;
       }
 
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .header img {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        border-radius: 5px;
+      }
+
       .status {
         font-weight: 600;
       }
@@ -60,7 +73,10 @@
     </style>
   </head>
   <body>
-    <div id="status" class="status">Working…</div>
+    <div class="header">
+      <img src="../icons/icon-32.png" alt="" width="22" height="22" />
+      <div id="status" class="status">Working…</div>
+    </div>
     <div id="detail" class="detail"></div>
     <div id="settings" class="settings" hidden>
       <div class="settings-field">
