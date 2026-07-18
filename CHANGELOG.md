@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/samdouble/lrcopy/compare/extension-v1.0.0...extension-v1.0.1) (2026-07-18)
+
+
+### Bug Fixes
+
+* fix extension build step ([71d646a](https://github.com/samdouble/lrcopy/commit/71d646a9a18254d73bed3d8fb28144b9f894b52c))
+
 ## [1.0.0](https://github.com/samdouble/lrcopy/compare/extension-v0.1.0...extension-v1.0.0) (2026-07-15)
 
 
