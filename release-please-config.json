@@ -8,8 +8,7 @@
       "release-type": "node",
       "path": ".",
       "skip-snapshot": true,
-      "component": "extension",
-      "release-as": "1.0.0"
+      "component": "extension"
     }
   }
 }

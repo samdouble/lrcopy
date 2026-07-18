@@ -23,7 +23,7 @@ Then open `chrome://extensions`, enable **Developer mode**, and load the unpacke
 ## Build
 
 ```bash
-npm run build          # Chrome → dist/chrome
-npm run build:firefox  # Firefox → dist/firefox
-npm run build:all      # both
+npm run build:chrome
+npm run build:firefox
+npm run build:all
 ```
