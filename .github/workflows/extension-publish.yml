@@ -52,6 +52,5 @@ jobs:
             1. npm ci
             2. npm run build:firefox
             Output directory: dist/firefox
-            The gecko id in the manifest is lrcopy@samdouble and must match FIREFOX_EXTENSION_ID.
           jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
           jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}
